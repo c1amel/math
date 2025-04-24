@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>花开富贵算术题</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .option-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-title {
+            min-width: 100px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .option-items {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-items label {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+            white-space: nowrap;
+        }
+
+        .tooltip {
+            margin-left: 5px;
+            cursor: help;
+            color: #3498db;
+        }
+
+        .tooltip-text {
+            display: none;
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            position: absolute;
+            z-index: 1;
+            max-width: 300px;
+        }
+
+        .tooltip:hover .tooltip-text {
+            display: block;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            min-width: 120px;
+        }
+
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        #showAnswersBtn {
+            background-color: #27ae60;
+        }
+
+        .questions-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .question-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .question {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .answer {
+            color: #e74c3c;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .questions-container {
+                grid-template-columns: 1fr;
+            }
+
+            .option-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .option-title {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>小学算术题生成器</h1>
+
+<div class="options">
+    <div class="option-group">
+        <div class="option-title">数字位数</div>
+        <div class="option-items">
+            <label><input type="radio" name="digitCount" value="2" checked> 二位数</label>
+            <label><input type="radio" name="digitCount" value="3"> 三位数</label>
+            <label><input type="radio" name="digitCount" value="4"> 四位数</label>
+            <div class="tooltip">?
+                <span class="tooltip-text">生成的数字都是几位数</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="option-group">
+        <div class="option-title">计算类型</div>
+        <div class="option-items">
+            <label><input type="radio" name="operationType" value="+" checked> 加</label>
+            <label><input type="radio" name="operationType" value="-"> 减</label>
+            <label><input type="radio" name="operationType" value="*"> 乘</label>
+            <label><input type="radio" name="operationType" value="/"> 除</label>
+            <label><input type="radio" name="operationType" value="+-"> 加减混合</label>
+            <label><input type="radio" name="operationType" value="*/"> 乘除混合</label>
+        </div>
+    </div>
+
+    <!--    <div class="option-group">-->
+    <!--        <div class="option-title">数字个数</div>-->
+    <!--        <div class="option-items">-->
+    <!--            <label><input type="radio" name="numberCount" value="2" checked> 2</label>-->
+    <!--            <label><input type="radio" name="numberCount" value="3"> 3</label>-->
+    <!--            <label><input type="radio" name="numberCount" value="4"> 4</label>-->
+    <!--            <label><input type="radio" name="numberCount" value="5"> 5</label>-->
+    <!--            <div class="tooltip">?-->
+    <!--                <span class="tooltip-text">生成的算式由多少数字组成</span>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--    </div>-->
+
+    <!--<div class="option-group">
+        <div class="option-title">括号运算</div>
+        <div class="option-items">
+            <label><input type="radio" name="parentheses" value="yes"> 是</label>
+            <label><input type="radio" name="parentheses" value="no" checked> 否</label>
+        </div>
+    </div>-->
+
+    <div class="option-group">
+        <div class="option-title">题目数量</div>
+        <div class="option-items">
+            <label><input type="radio" name="questionCount" value="20"> 20</label>
+            <label><input type="radio" name="questionCount" value="50" checked> 50</label>
+            <label><input type="radio" name="questionCount" value="80"> 80</label>
+            <label><input type="radio" name="questionCount" value="100"> 100</label>
+        </div>
+    </div>
+
+    <div class="option-group">
+        <div class="option-title">负数结果</div>
+        <div class="option-items">
+            <label><input type="radio" name="negativeResult" value="yes"> 是</label>
+            <label><input type="radio" name="negativeResult" value="no" checked> 否</label>
+        </div>
+    </div>
+
+    <div class="option-group">
+        <div class="option-title">特殊要求</div>
+        <div class="option-items">
+            <label><input type="radio" name="specialRequirement" value="none" checked> 无</label>
+            <label><input type="radio" name="specialRequirement" value="oneCarry"> 一次进位/退位</label>
+            <label><input type="radio" name="specialRequirement" value="twoCarry"> 两次进位/退位</label>
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button id="generateBtn">生成题目</button>
+        <button id="showAnswersBtn" disabled>显示答案</button>
+    </div>
+</div>
+
+<div id="questions" class="questions-container"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const generateBtn = document.getElementById('generateBtn');
+        const showAnswersBtn = document.getElementById('showAnswersBtn');
+        const questionsContainer = document.getElementById('questions');
+
+        let currentQuestions = [];
+
+        generateBtn.addEventListener('click', generateQuestions);
+        showAnswersBtn.addEventListener('click', showAnswers);
+
+        function generateQuestions() {
+            const digitCount = parseInt(document.querySelector('input[name="digitCount"]:checked').value);
+            let operationType = document.querySelector('input[name="operationType"]:checked').value;
+            // const numberCount = parseInt(document.querySelector('input[name="numberCount"]:checked').value);
+            const numberCount = 2;
+            //const useParentheses = document.querySelector('input[name="parentheses"]:checked').value === 'yes';
+            const useParentheses = false;
+            const questionCount = parseInt(document.querySelector('input[name="questionCount"]:checked').value);
+            const allowNegative = document.querySelector('input[name="negativeResult"]:checked').value === 'yes';
+            const specialReq = document.querySelector('input[name="specialRequirement"]:checked').value;
+
+            currentQuestions = [];
+            questionsContainer.innerHTML = '';
+
+            // 创建两列容器
+            const column1 = document.createElement('div');
+            column1.className = 'question-column';
+            const column2 = document.createElement('div');
+            column2.className = 'question-column';
+
+            questionsContainer.appendChild(column1);
+            questionsContainer.appendChild(column2);
+            let operationType1 = operationType;
+            for (let i = 0; i < questionCount; i++) {
+                let question, answer;
+
+                if (operationType1 === '+-') {
+                    if (i % 2 === 0) {
+                        operationType = '+';
+                    } else {
+                        operationType = '-';
+                    }
+                }
+                do {
+                    [question, answer] = generateSingleQuestion(
+                        digitCount,
+                        operationType,
+                        numberCount,
+                        useParentheses,
+                        allowNegative,
+                        specialReq
+                    );
+                } while (isNaN(answer) || !isFinite(answer));
+                // console.log('-----------'+question);
+                // console.log('-----------'+answer);
+                currentQuestions.push({question, answer});
+
+                const questionElement = document.createElement('div');
+                questionElement.className = 'question';
+                questionElement.textContent = `${i + 1}. ${question} = `;
+                questionElement.dataset.answer = answer;
+
+                /*console.log('-----------'+question);
+                console.log('-----------'+answer);*/
+
+                // 交替放入两列
+                if (i % 2 === 0) {
+                    column1.appendChild(questionElement);
+                } else {
+                    column2.appendChild(questionElement);
+                }
+            }
+
+            showAnswersBtn.disabled = false;
+        }
+
+        function shuffleDigits(numFirst) {
+            // 将数字转换为字符串
+            let numStr = numFirst.toString();
+
+            // 将字符串转换为数组
+            let digits = numStr.split('');
+
+            // 使用 Fisher-Yates 洗牌算法打乱数组
+            for (let i = digits.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1)); // 随机选择一个索引
+                [digits[i], digits[j]] = [digits[j], digits[i]]; // 交换
+            }
+
+            // 将打乱后的数组重新合并成一个字符串
+            return digits.join('');
+        }
+
+        function generateSingleQuestion(digitCount, operationType, numberCount, useParentheses, allowNegative, specialReq) {
+            const numbers = [];
+            const operations = [];
+
+            // 生成数字
+            for (let i = 0; i < numberCount; i++) {
+                const min = Math.pow(10, digitCount - 1);
+                const max = Math.pow(10, digitCount) - 1;
+                let num = Math.floor(Math.random() * (max - min + 1)) + min;
+
+                // 特殊要求处理
+                if (specialReq !== 'none' && (operationType === '+' || operationType === '-' || operationType === '+-')) {
+                    if (operationType === '+') {
+                        // 加法
+                        //if (digitCount === 2) {
+                        if (specialReq === 'oneCarry') {
+                            // 确保至少有一次进位，最后一位大于5就行
+                            let numLast = Math.floor(Math.random() * (10 - 5)) + 5;
+                            let numFirst = '';
+
+                            for (let p = 0; p < digitCount - 1; p++) {
+                                let num1 = Math.floor(Math.random() * (5 - 1) + 1);
+                                numFirst = numFirst + num1;
+                            }
+                            num = numFirst + numLast;
+                            //  console.log('打乱前的---'+num);
+                            // num = shuffleDigits(num);
+                            //  console.log('------------------'+num);
+                        } else if (specialReq === 'twoCarry') {
+                            let numLast = Math.floor(Math.random() * (10 - 5)) + 5;
+                            let numLast1 = Math.floor(Math.random() * (10 - 5)) + 5;
+                            let numFirst = '';
+
+                            for (let p = 0; p < digitCount - 2; p++) {
+                                let num1 = Math.floor(Math.random() * (5 - 1) + 1);
+                                numFirst = numFirst + num1;
+                            }
+                            num = numFirst + numLast + numLast1;
+                        }
+                        //}
+                    } else {
+                        //减法
+                        if (specialReq === 'oneCarry') {
+                            // 确保至少有一次退，最后一位小于下一位就行
+                            let numFirst = '';
+                            let numLast = Math.floor(Math.random() * (5 - 1) + 1);
+                            if (i === 0) {
+                                for (let p = 0; p < digitCount - 1; p++) {
+                                    let num1 = Math.floor(Math.random() * (10 - 5)) + 5;
+                                    numFirst = numFirst + num1;
+                                }
+                            } else {
+                                numLast = Math.floor(Math.random() * (10 - 5)) + 5;
+                                for (let p = 0; p < digitCount - 1; p++) {
+                                    let num1 = Math.floor(Math.random() * (5 - 1) + 1);
+                                    numFirst = numFirst + num1;
+                                }
+                            }
+                            num = numFirst + numLast;
+                        } else if (specialReq === 'twoCarry') {
+                            let numFirst = '';
+                            let numLast = Math.floor(Math.random() * (5 - 1) + 1);
+                            let numLast1 = Math.floor(Math.random() * (5 - 1) + 1);
+                            if (i === 0) {
+                                for (let p = 0; p < digitCount - 2; p++) {
+                                    let num1 = Math.floor(Math.random() * (10 - 5)) + 5;
+                                    numFirst = numFirst + num1;
+                                }
+                            } else {
+                                numLast = Math.floor(Math.random() * (10 - 5)) + 5;
+                                numLast1 = Math.floor(Math.random() * (10 - 5)) + 5;
+                                for (let p = 0; p < digitCount - 2; p++) {
+                                    let num1 = Math.floor(Math.random() * (5 - 1) + 1);
+                                    numFirst = numFirst + num1;
+                                }
+                            }
+                            num = numFirst + numLast + numLast1;
+                            if (digitCount === 2) {
+                                num = 0;
+                            }
+                        }
+                    }
+
+
+                    /*if (digitCount === 2) {
+                        if (specialReq === 'oneCarry') {
+                            // 确保至少有一次进位/退位
+                            if (operationType === '+' || (operationType === '+-' && Math.random() > 0.5)) {
+                                // 加法进位
+                                num = Math.floor(Math.random() * (99 - (100 - min) + 1)) + (100 - min);
+                            } else {
+                                // 减法退位
+                                num = Math.floor(Math.random() * (min - 1)) + 1;
+                            }
+                        } else if (specialReq === 'twoCarry') {
+                            // 确保有两次进位/退位（两位数无法实现两次进位，所以这里处理为更复杂的进位情况）
+                            if (operationType === '+' || (operationType === '+-' && Math.random() > 0.5)) {
+                                // 加法进位
+                                num = Math.floor(Math.random() * (99 - (100 - min) + 1)) + (100 - min);
+                                console.log('加法进位2次num----'+num);
+                                if(num<min){
+                                    num = num+min;
+                                }
+                                console.log('xiugai----'+num);
+                            } else {
+                                // 减法退位
+                                num = Math.floor(Math.random() * (min - 1)) + 1;
+                                // console.log('减法进位2次num----'+num);
+                                console.log('减法进位2次num----'+num);
+                                if(num<min){
+                                    num = num+min;
+                                }
+                                console.log('-*------xiugai----'+num);
+                            }
+                        }
+                    }*/
+                }
+
+                numbers.push(num);
+            }
+
+            // 生成运算符
+            let ops = [];
+            if (operationType === '+-') {
+                for (let i = 0; i < numberCount - 1; i++) {
+                    ops.push(Math.random() > 0.5 ? '+' : '-');
+                }
+            } else if (operationType === '*/') {
+                for (let i = 0; i < numberCount - 1; i++) {
+                    ops.push(Math.random() > 0.5 ? '*' : '/');
+                }
+            } else {
+                for (let i = 0; i < numberCount - 1; i++) {
+                    ops.push(operationType);
+                }
+            }
+
+            // 构建表达式
+            let expression = numbers[0].toString();
+            for (let i = 0; i < ops.length; i++) {
+                expression += ` ${ops[i]} ${numbers[i + 1]}`;
+            }
+
+            // 添加括号
+            if (useParentheses && numberCount > 2) {
+                const positions = [];
+                for (let i = 0; i < numberCount - 1; i++) {
+                    positions.push(i);
+                }
+
+                // 随机选择括号位置
+                const pos = Math.floor(Math.random() * (positions.length - 1));
+                expression = expression.split(' ');
+                expression.splice(pos * 2, 0, '(');
+                expression.splice((pos + 2) * 2, 0, ')');
+                expression = expression.join(' ');
+            }
+
+            // 计算答案
+            let answer;
+            try {
+                answer = eval(expression);
+            } catch (e) {
+                answer = NaN;
+            }
+
+            // 处理负数结果
+            if (!allowNegative && answer < 0) {
+                // 如果是减法或加减混合，调整数字顺序
+                if (operationType === '-' || operationType === '+-') {
+                    numbers.sort((a, b) => b - a);
+                    return generateSingleQuestion(digitCount, operationType, numberCount, useParentheses, allowNegative, specialReq);
+                } else {
+                    // 其他情况重新生成
+                    return generateSingleQuestion(digitCount, operationType, numberCount, useParentheses, allowNegative, specialReq);
+                }
+            }
+
+            // 特殊要求：结果必须是负数
+            if (allowNegative && answer >= 0) {
+                if (operationType === '-' || operationType === '+-') {
+                    numbers.sort((a, b) => a - b);
+                    return generateSingleQuestion(digitCount, operationType, numberCount, useParentheses, allowNegative, specialReq);
+                } else {
+                    return generateSingleQuestion(digitCount, operationType, numberCount, useParentheses, allowNegative, specialReq);
+                }
+            }
+
+            // 处理除法的整数结果
+            if (operationType === '/' || operationType === '*/') {
+                if (!Number.isInteger(answer)) {
+                    // 重新生成数字，使得除法结果为整数
+                    const lastNum = numbers[numbers.length - 1];
+                    const product = numbers.slice(0, -1).reduce((acc, num) => acc * num, 1);
+                    numbers[numbers.length - 1] = product;
+                    return generateSingleQuestion(digitCount, operationType, numberCount, useParentheses, allowNegative, specialReq);
+                }
+            }
+
+            return [expression, answer];
+        }
+
+        function showAnswers() {
+            const questionElements = document.querySelectorAll('.question');
+            let length = questionElements.length;
+            let middle = length/2;
+            questionElements.forEach((element, index) => {
+                if (!element.querySelector('.answer')) {
+                    const answerSpan = document.createElement('span');
+                    answerSpan.className = 'answer';
+                    let indexReal = 0;
+                    if(index<middle){
+                        indexReal = index*2;
+                    }else {
+                        indexReal = (index-middle+1)*2-1;
+                    }
+                    /*console.log('之前索引++++'+index);
+                    console.log('修正后的索引++++'+indexReal);*/
+                    answerSpan.textContent = currentQuestions[indexReal].answer;
+                    element.appendChild(answerSpan);
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
